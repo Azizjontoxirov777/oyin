@@ -1,0 +1,213 @@
+/* Asosiy sozlamalar va shriftlar */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #050510;
+    color: #ffffff;
+}
+
+/* O'yin konteyneri */
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Canvas ekrani */
+canvas {
+    background: radial-gradient(circle at center, #0b0d1b 0%, #020308 100%);
+    display: block;
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+}
+
+/* UI Panel (Ball va Hayot ko'rsatkichlari) */
+#ui-panel {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.stat-box {
+    background: rgba(15, 23, 42, 0.75);
+    padding: 10px 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.stat-value {
+    color: #00f2fe;
+}
+
+#boost-bar-container {
+    width: 150px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#boost-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff007f, #7928ca);
+    transition: width 0.1s linear;
+}
+
+/* Ekran ustidagi modallar (Start va GameOver menyular) */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 16, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal {
+    background: rgba(20, 30, 55, 0.8);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
+}
+
+.modal h1 {
+    font-size: 2.2rem;
+    margin-bottom: 15px;
+    background: linear-gradient(45deg, #00f2fe, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.modal p {
+    color: #cbd5e1;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+/* Tugmalar */
+.btn {
+    background: linear-gradient(45deg, #00f2fe, #4facfe);
+    color: #000;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 242, 254, 0.6);
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+/* Mobil Boshqaruv Tugmalari */
+#mobile-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: none; /* JS orqali sensorli ekranlarda yoqiladi */
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 15;
+    pointer-events: none;
+}
+
+.d-pad, .action-pad {
+    pointer-events: auto;
+    display: grid;
+    gap: 10px;
+}
+
+.d-pad {
+    grid-template-columns: repeat(3, 50px);
+    grid-template-rows: repeat(2, 50px);
+}
+
+.touch-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    color: white;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    active-background: rgba(0, 242, 254, 0.4);
+}
+
+.touch-btn:active {
+    background: rgba(0, 242, 254, 0.5);
+}
+
+#btn-up { grid-column: 2; grid-row: 1; }
+#btn-left { grid-column: 1; grid-row: 2; }
+#btn-down { grid-column: 2; grid-row: 2; }
+#btn-right { grid-column: 3; grid-row: 2; }
+
+.boost-touch-btn {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(255, 0, 127, 0.3);
+    border: 2px solid rgba(255, 0, 127, 0.6);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.boost-touch-btn:active {
+    background: rgba(255, 0, 127, 0.7);
+}

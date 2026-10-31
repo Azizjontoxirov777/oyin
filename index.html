@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="uz">
+<head>
+   <!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Koinot Sarmoyadori - Sarguzasht O'yini</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;700&display=swap');
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #090a0f;
+            color: #ffffff;
+            touch-action: manipulation;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.6), 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .glow-button {
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 0 25px rgba(14, 165, 233, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .glow-button:active {
+            transform: translateY(1px);
+        }
+
+        /* Canvas Container */
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Virtual D-Pad for Mobile */
+        .touch-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+        .touch-btn:active {
+            background: rgba(56, 189, 248, 0.3);
+            border-color: rgba(56, 189, 248, 0.6);
+        }
+    </style>
+</head>
+<body class="w-full h-screen overflow-hidden flex flex-col justify-between items-center">
+
+    <!-- Canvas Background & Game Area -->
+    <div id="canvas-container">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- UI Header (Score & Lives) -->
+        <div id="game-ui" class="absolute top-4 left-4 right-4 flex justify-between items-center pointer-events-none z-10 hidden">
+            <!-- Score & Combo -->
+            <div class="glass-panel px-4 py-2 rounded-2xl flex items-center space-x-4 border border-cyan-500/30">
+                <div>
+                    <div class="text-xs text-cyan-400 font-orbitron uppercase tracking-wider">BALL</div>
+                    <div id="ui-score" class="text-2xl font-black font-orbitron text-white glow-text">0</div>
+                </div>
+                <div class="h-8 w-px bg-white/20"></div>
+                <div>
+                    <div class="text-xs text-yellow-400 font-orbitron uppercase tracking-wider">YULDUZ</div>
+                    <div id="ui-stars" class="text-2xl font-black font-orbitron text-yellow-300">0</div>
+                </div>
+            </div>
+
+            <!-- Health Bar / Lives -->
+            <div class="glass-panel px-4 py-2 rounded-2xl flex items-center space-x-2 border border-red-500/30">
+                <div class="text-xs text-red-400 font-orbitron uppercase tracking-wider mr-2">HAYOT</div>
+                <div id="ui-lives" class="flex space-x-1">
+                    <i class="fa-solid fa-heart text-red-500 text-xl"></i>
+                    <i class="fa-solid fa-heart text-red-500 text-xl"></i>
+                    <i class="fa-solid fa-heart text-red-500 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boshlanish Ekrani (Start Screen) -->
+        <div id="start-screen" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md z-20 p-4">
+            <div class="glass-panel p-8 rounded-3xl max-w-md w-full text-center border border-cyan-500/30 shadow-2xl relative overflow-hidden">
+                <div class="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-purple-500/20 rounded-full blur-2xl"></div>
+
+                <div class="inline-block p-4 bg-cyan-500/10 rounded-2xl mb-4 border border-cyan-500/30 animate-bounce">
+                    <i class="fa-solid fa-rocket text-5xl text-cyan-400"></i>
+                </div>
+
+                <h1 class="text-3xl sm:text-4xl font-extrabold font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 mb-2">
+                    KOINOT SARMOYADORI
+                </h1>
+                <p class="text-gray-300 text-sm mb-6">Meteoritlardan qoching, yulduz va energiyalarni yig'ing va eng yuqori natijani o'rnating!</p>
+
+                <!-- Best Score Display -->
+                <div class="bg-white/5 rounded-xl p-3 mb-6 border border-white/10 flex justify-between items-center">
+                    <span class="text-gray-400 text-sm font-orbitron"><i class="fa-solid fa-trophy text-yellow-400 mr-2"></i>REKORD:</span>
+                    <span id="start-high-score" class="text-xl font-bold font-orbitron text-yellow-400">0</span>
+                </div>
+
+                <!-- Boshlash tugmasi -->
+                <button id="start-btn" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-orbitron font-bold text-lg text-white glow-button tracking-wider uppercase flex items-center justify-center space-x-2">
+                    <span>O'YINNI BOSHLASH</span>
+                    <i class="fa-solid fa-play"></i>
+                </button>
+
+                <!-- Boshqaruv Qo'llanmasi -->
+                <div class="mt-6 pt-4 border-t border-white/10 text-xs text-gray-400 grid grid-cols-2 gap-2 text-left">
+                    <div><span class="text-cyan-400 font-bold">Klaviatura:</span> W,A,S,D / Strelkalar</div>
+                    <div><span class="text-cyan-400 font-bold">Sensor:</span> Ekrandagi joystick yoki surish</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Ekrani -->
+        <div id="game-over-screen" class="absolute inset-0 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md z-20 p-4 hidden">
+            <div class="glass-panel p-8 rounded-3xl max-w-md w-full text-center border border-red-500/30 shadow-2xl relative">
+                <div class="inline-block p-4 bg-red-500/10 rounded-2xl mb-4 border border-red-500/30">
+                    <i class="fa-solid fa-skull text-5xl text-red-500"></i>
+                </div>
+
+                <h2 class="text-3xl font-extrabold font-orbitron text-red-500 mb-1">O'YIN TUGADI!</h2>
+                <p class="text-gray-400 text-sm mb-6">Kema meteorit bilan to'qnashdi!</p>
+
+                <!-- Score Details -->
+                <div class="space-y-3 mb-6">
+                    <div class="bg-white/5 rounded-xl p-3 flex justify-between items-center border border-white/5">
+                        <span class="text-gray-400 text-sm">To'plangan ball:</span>
+                        <span id="final-score" class="text-2xl font-bold font-orbitron text-cyan-400">0</span>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-3 flex justify-between items-center border border-white/5">
+                        <span class="text-gray-400 text-sm">Yig'ilgan yulduzlar:</span>
+                        <span id="final-stars" class="text-xl font-bold font-orbitron text-yellow-400">0</span>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-3 flex justify-between items-center border border-white/5">
+                        <span class="text-gray-400 text-sm">Eng yuqori rekord:</span>
+                        <span id="final-high-score" class="text-xl font-bold font-orbitron text-green-400">0</span>
+                    </div>
+                </div>
+
+                <!-- Qayta o'ynash tugmasi -->
+                <button id="restart-btn" class="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl font-orbitron font-bold text-lg text-white glow-button tracking-wider uppercase flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>QAYTA BOSHLASH</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Touch Controls for Mobile Screen -->
+        <div id="mobile-controls" class="absolute bottom-6 left-4 right-4 flex justify-between items-end pointer-events-none z-10 sm:hidden hidden">
+            <!-- Left Joystick / Directional Buttons -->
+            <div class="grid grid-cols-3 gap-2 w-36 h-36 pointer-events-auto">
+                <div></div>
+                <button id="btn-up" class="touch-btn text-white text-xl"><i class="fa-solid fa-caret-up"></i></button>
+                <div></div>
+                <button id="btn-left" class="touch-btn text-white text-xl"><i class="fa-solid fa-caret-left"></i></button>
+                <div class="touch-btn opacity-30"></div>
+                <button id="btn-right" class="touch-btn text-white text-xl"><i class="fa-solid fa-caret-right"></i></button>
+                <div></div>
+                <button id="btn-down" class="touch-btn text-white text-xl"><i class="fa-solid fa-caret-down"></i></button>
+                <div></div>
+            </div>
+
+            <!-- Boost / Special button -->
+            <div class="pointer-events-auto">
+                <button id="btn-boost" class="touch-btn w-16 h-16 bg-cyan-500/20 border-cyan-400/50 text-cyan-300 font-orbitron text-xs font-bold active:bg-cyan-500/50">
+                    BOOST
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Game Canvas Setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // UI Elements
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const gameUI = document.getElementById('game-ui');
+        const mobileControls = document.getElementById('mobile-controls');
+        
+        const uiScore = document.getElementById('ui-score');
+        const uiStars = document.getElementById('ui-stars');
+        const uiLives = document.getElementById('ui-lives');
+        
+        const startHighScore = document.getElementById('start-high-score');
+        const finalScore = document.getElementById('final-score');
+        const finalStars = document.getElementById('final-stars');
+        const finalHighScore = document.getElementById('final-high-score');
+
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Game Variables
+        let isGameRunning = false;
+        let score = 0;
+        let starsCollected = 0;
+        let lives = 3;
+        let highScore = localStorage.getItem('koinot_sarmoyadori_highscore') || 0;
+        let animationFrameId;
+
+        // Player / Spaceship Object
+        const player = {
+            x: 0,
+            y: 0,
+            width: 40,
+            height: 40,
+            speed: 6,
+            boostSpeed: 10,
+            isBoosting: false,
+            vx: 0,
+            vy: 0,
+            angle: 0,
+            color: '#06b6d4'
+        };
+
+        // Game Entities
+        let asteroids = [];
+        let stars = [];
+        let particles = [];
+        let bgStars = [];
+
+        // Key states
+        const keys = {
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false,
+            w: false,
+            a: false,
+            s: false,
+            d: false,
+            Shift: false
+        };
+
+        // Responsive Canvas Resizing
+        function resizeCanvas() {
+            canvas.width = Math.min(window.innerWidth, 800);
+            canvas.height = Math.min(window.innerHeight, 900);
+            
+            // Re-center player if out of bounds
+            if (player.x > canvas.width) player.x = canvas.width / 2;
+            if (player.y > canvas.height) player.y = canvas.height - 100;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Initialize Background Stars
+        function initBgStars() {
+            bgStars = [];
+            for (let i = 0; i < 70; i++) {
+                bgStars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speed: Math.random() * 0.8 + 0.2,
+                    opacity: Math.random() * 0.8 + 0.2
+                });
+            }
+        }
+
+        // Initialize Game
+        function initGame() {
+            score = 0;
+            starsCollected = 0;
+            lives = 3;
+            asteroids = [];
+            stars = [];
+            particles = [];
+
+            player.x = canvas.width / 2;
+            player.y = canvas.height - 120;
+            player.vx = 0;
+            player.vy = 0;
+
+            updateUI();
+            initBgStars();
+            
+            // Update High Score UI
+            startHighScore.textContent = highScore;
+        }
+
+        // Event Listeners for Controls
+        window.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key) || keys.hasOwnProperty(e.key.toLowerCase())) {
+                keys[e.key] = true;
+                keys[e.key.toLowerCase()] = true;
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key) || keys.hasOwnProperty(e.key.toLowerCase())) {
+                keys[e.key] = false;
+                keys[e.key.toLowerCase()] = false;
+            }
+        });
+
+        // Touch Control Button Binding
+        function bindTouchControl(elementId, keyName) {
+            const btn = document.getElementById(elementId);
+            if (!btn) return;
+
+            const startPress = (e) => {
+                e.preventDefault();
+                keys[keyName] = true;
+                if(keyName === 'Shift') player.isBoosting = true;
+            };
+
+            const endPress = (e) => {
+                e.preventDefault();
+                keys[keyName] = false;
+                if(keyName === 'Shift') player.isBoosting = false;
+            };
+
+            btn.addEventListener('touchstart', startPress);
+            btn.addEventListener('touchend', endPress);
+            btn.addEventListener('mousedown', startPress);
+            btn.addEventListener('mouseup', endPress);
+        }
+
+        bindTouchControl('btn-up', 'ArrowUp');
+        bindTouchControl('btn-down', 'ArrowDown');
+        bindTouchControl('btn-left', 'ArrowLeft');
+        bindTouchControl('btn-right', 'ArrowRight');
+        bindTouchControl('btn-boost', 'Shift');
+
+        // Touch Swipe Movement Support on Canvas
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isGameRunning) return;
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+
+            const dx = touchX - touchStartX;
+            const dy = touchY - touchStartY;
+
+            player.x += dx * 0.8;
+            player.y += dy * 0.8;
+
+            // Keep in bounds
+            player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x));
+            player.y = Math.max(player.height / 2, Math.min(canvas.height - player.height / 2, player.y));
+
+            touchStartX = touchX;
+            touchStartY = touchY;
+        }, { passive: true });
+
+        // Spawn Asteroid
+        function spawnAsteroid() {
+            const size = Math.random() * 25 + 20; // 20 to 45
+            asteroids.push({
+                x: Math.random() * (canvas.width - size * 2) + size,
+                y: -size,
+                size: size,
+                speed: Math.random() * 3 + 2 + (score / 200), // Speed increases with score
+                rotation: 0,
+                rotSpeed: (Math.random() - 0.5) * 0.05,
+                vertices: Math.floor(Math.random() * 3) + 5 // 5 to 7 polygon sides
+            });
+        }
+
+        // Spawn Collectible Star
+        function spawnStar() {
+            const isSpecial = Math.random() < 0.2; // 20% chance for special energy star
+            stars.push({
+                x: Math.random() * (canvas.width - 40) + 20,
+                y: -20,
+                size: isSpecial ? 16 : 12,
+                speed: Math.random() * 1.5 + 1.5,
+                isSpecial: isSpecial,
+                pulse: 0
+            });
+        }
+
+        // Create Particles Effect (Explosions/Collect effects)
+        function createParticles(x, y, color, count = 10) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: Math.random() * 4 + 2,
+                    color: color,
+                    alpha: 1,
+                    life: Math.random() * 20 + 20
+                });
+            }
+        }
+
+        // Update Game Objects
+        function update() {
+            // Player Movement Logic
+            const currentSpeed = (keys.Shift || player.isBoosting) ? player.boostSpeed : player.speed;
+
+            if (keys.ArrowLeft || keys.a) player.x -= currentSpeed;
+            if (keys.ArrowRight || keys.d) player.x += currentSpeed;
+            if (keys.ArrowUp || keys.w) player.y -= currentSpeed;
+            if (keys.ArrowDown || keys.s) player.y += currentSpeed;
+
+            // Screen Boundaries
+            player.x = Math.max(player.width / 2, Math.min(canvas.width - player.width / 2, player.x));
+            player.y = Math.max(player.height / 2, Math.min(canvas.height - player.height / 2, player.y));
+
+            // Engine Thrust Particles
+            if (Math.random() < 0.6) {
+                particles.push({
+                    x: player.x + (Math.random() - 0.5) * 10,
+                    y: player.y + 20,
+                    vx: (Math.random() - 0.5) * 2,
+                    vy: Math.random() * 4 + 2,
+                    size: Math.random() * 3 + 1,
+                    color: (keys.Shift || player.isBoosting) ? '#38bdf8' : '#f97316',
+                    alpha: 1,
+                    life: 15
+                });
+            }
+
+            // Update Background Stars
+            bgStars.forEach(star => {
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+            });
+
+            // Spawning Logic
+            if (Math.random() < 0.03 + (score / 10000)) spawnAsteroid();
+            if (Math.random() < 0.02) spawnStar();
+
+            // Update Asteroids & Collision Detection
+            for (let i = asteroids.length - 1; i >= 0; i--) {
+                let ast = asteroids[i];
+                ast.y += ast.speed;
+                ast.rotation += ast.rotSpeed;
+
+                // Check player collision with asteroid
+                const dist = Math.hypot(player.x - ast.x, player.y - ast.y);
+                if (dist < player.width / 2 + ast.size * 0.8) {
+                    // Explosion Effect
+                    createParticles(ast.x, ast.y, '#ef4444', 20);
+                    asteroids.splice(i, 1);
+                    lives--;
+                    updateUI();
+
+                    if (lives <= 0) {
+                        endGame();
+                        return;
+                    }
+                    continue;
+                }
+
+                // Remove out of bounds asteroids
+                if (ast.y > canvas.height + ast.size) {
+                    asteroids.splice(i, 1);
+                    score += 5; // Passively gain points for dodging
+                    updateUI();
+                }
+            }
+
+            // Update Stars & Collection Detection
+            for (let i = stars.length - 1; i >= 0; i--) {
+                let st = stars[i];
+                st.y += st.speed;
+                st.pulse += 0.05;
+
+                // Check collision with player
+                const dist = Math.hypot(player.x - st.x, player.y - st.y);
+                if (dist < player.width / 2 + st.size) {
+                    // Star Collection Effect
+                    createParticles(st.x, st.y, st.isSpecial ? '#38bdf8' : '#eab308', 15);
+                    
+                    if (st.isSpecial) {
+                        score += 50;
+                        starsCollected += 2;
+                    } else {
+                        score += 20;
+                        starsCollected += 1;
+                    }
+
+                    stars.splice(i, 1);
+                    updateUI();
+                    continue;
+                }
+
+                // Remove out of bounds stars
+                if (st.y > canvas.height + st.size) {
+                    stars.splice(i, 1);
+                }
+            }
+
+            // Update Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 1 / p.life;
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        // Draw Player Spaceship
+        function drawPlayer() {
+            ctx.save();
+            ctx.translate(player.x, player.y);
+
+            // Spaceship Glow
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#06b6d4';
+
+            // Main Body (Triangle/Rocket Shape)
+            ctx.fillStyle = '#0891b2';
+            ctx.beginPath();
+            ctx.moveTo(0, -player.height / 2);
+            ctx.lineTo(-player.width / 2, player.height / 2);
+            ctx.lineTo(0, player.height / 3);
+            ctx.lineTo(player.width / 2, player.height / 2);
+            ctx.closePath();
+            ctx.fill();
+
+            // Cockpit Highlight
+            ctx.fillStyle = '#67e8f9';
+            ctx.beginPath();
+            ctx.arc(0, -2, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Wing Accents
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-player.width / 2, player.height / 2);
+            ctx.lineTo(0, -player.height / 2);
+            ctx.lineTo(player.width / 2, player.height / 2);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // Render Everything on Canvas
+        function draw() {
+            // Clear Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Background Stars
+            bgStars.forEach(star => {
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
+            });
+
+            // Draw Particles
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, p.alpha);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            // Draw Asteroids
+            asteroids.forEach(ast => {
+                ctx.save();
+                ctx.translate(ast.x, ast.y);
+                ctx.rotate(ast.rotation);
+
+                ctx.strokeStyle = '#94a3b8';
+                ctx.fillStyle = '#1e293b';
+                ctx.lineWidth = 2;
+
+                ctx.beginPath();
+                for (let i = 0; i < ast.vertices; i++) {
+                    const angle = (i / ast.vertices) * Math.PI * 2;
+                    const r = ast.size + (Math.sin(i * 99) * 4); // Jagged rock look
+                    const x = Math.cos(angle) * r;
+                    const y = Math.sin(angle) * r;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.restore();
+            });
+
+            // Draw Collectible Stars
+            stars.forEach(st => {
+                ctx.save();
+                ctx.translate(st.x, st.y);
+                
+                const scale = 1 + Math.sin(st.pulse) * 0.15;
+                ctx.scale(scale, scale);
+
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = st.isSpecial ? '#38bdf8' : '#facc15';
+                ctx.fillStyle = st.isSpecial ? '#38bdf8' : '#facc15';
+
+                // Star polygon shape
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    ctx.lineTo(Math.cos((18 + i * 72) * Math.PI / 180) * st.size, -Math.sin((18 + i * 72) * Math.PI / 180) * st.size);
+                    ctx.lineTo(Math.cos((54 + i * 72) * Math.PI / 180) * (st.size / 2), -Math.sin((54 + i * 72) * Math.PI / 180) * (st.size / 2));
+                }
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.restore();
+            });
+
+            // Draw Player
+            drawPlayer();
+        }
+
+        // Main Game Loop
+        function gameLoop() {
+            if (!isGameRunning) return;
+            update();
+            draw();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        // Update HTML UI Stats
+        function updateUI() {
+            uiScore.textContent = score;
+            uiStars.textContent = starsCollected;
+
+            // Render hearts for lives
+            uiLives.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                if (i < lives) {
+                    uiLives.innerHTML += `<i class="fa-solid fa-heart text-red-500 text-xl"></i>`;
+                } else {
+                    uiLives.innerHTML += `<i class="fa-regular fa-heart text-gray-600 text-xl"></i>`;
+                }
+            }
+        }
+
+        // Start Game Function
+        function startGame() {
+            initGame();
+            isGameRunning = true;
+            
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            gameUI.classList.remove('hidden');
+            
+            // Show mobile touch controls on small screens
+            if (window.innerWidth < 640) {
+                mobileControls.classList.remove('hidden');
+            }
+
+            gameLoop();
+        }
+
+        // End Game Function
+        function endGame() {
+            isGameRunning = false;
+            cancelAnimationFrame(animationFrameId);
+
+            // High Score Check
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('koinot_sarmoyadori_highscore', highScore);
+            }
+
+            finalScore.textContent = score;
+            finalStars.textContent = starsCollected;
+            finalHighScore.textContent = highScore;
+
+            gameUI.classList.add('hidden');
+            mobileControls.classList.add('hidden');
+            gameOverScreen.classList.remove('hidden');
+        }
+
+        // Event Listeners for Buttons
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+
+        // Render background animation even when menu is up
+        function menuBgAnimation() {
+            if (!isGameRunning) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                bgStars.forEach(star => {
+                    star.y += star.speed * 0.5;
+                    if (star.y > canvas.height) star.y = 0;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                    ctx.fillRect(star.x, star.y, star.size, star.size);
+                });
+                requestAnimationFrame(menuBgAnimation);
+            }
+        }
+
+        initBgStars();
+        startHighScore.textContent = highScore;
+        menuBgAnimation();
+
+    </script>
+</body>
+</html>
+</body>
+</html>
